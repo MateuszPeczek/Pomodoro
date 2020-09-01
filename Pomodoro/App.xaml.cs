@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pomodoro.Services;
+using Pomodoro.ViewModels;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -34,7 +36,10 @@ namespace Pomodoro
 
         private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
-            
+            services.AddHostedService<ApplicationHostService>();
+
+            services.AddTransient<MainPageModel>();
+            services.AddTransient<MainPage>();
         }
 
         private async void OnExit(object sender, ExitEventArgs e)

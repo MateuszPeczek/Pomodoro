@@ -1,15 +1,17 @@
-﻿using System.Windows;
+﻿using Pomodoro.ViewModels;
+using System.Windows;
 
 namespace Pomodoro
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainPage : Window
     {
-        public MainWindow()
+        public MainPage(MainPageModel model)
         {
             InitializeComponent();
+            DataContext = model;
         }
     }
 }
