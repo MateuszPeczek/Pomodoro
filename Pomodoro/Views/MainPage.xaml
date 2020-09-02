@@ -7,7 +7,7 @@
         xmlns:resx="clr-namespace:Pomodoro.Resources"
         xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
-        Title="{x:Static resx:Resources.AppTitle}" Height="500" Width="300">
+        Title="{x:Static resx:Resources.AppTitle}" MinHeight="500" Height="500" MinWidth="300" Width="300">
     <Grid Style="{StaticResource BackgroundColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -27,6 +27,8 @@
         </StackPanel>
         <StackPanel Grid.Row="1">
             <Label x:Name="StatusLabel" Content="{Binding StatusDescription}" Style="{StaticResource WhiteFont}"/>
+            <Button Content="{Binding ActionButtonDescription}" Style="{StaticResource ActionButtonStyle}" Command="{Binding ActionButtonCommand}"/>
+            <Label x:Name="TimerLabel" Content="{Binding TimerStringValue}" Style="{StaticResource WhiteFont}"/>
         </StackPanel>
     </Grid>
 </mah:MetroWindow>

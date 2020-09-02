@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pomodoro.Core.Helpers;
+using Pomodoro.Core.Interfaces;
+using Pomodoro.Core.Logic;
+using Pomodoro.Core.Models;
 using Pomodoro.Services;
 using Pomodoro.ViewModels;
 using System.IO;
@@ -37,6 +41,11 @@ namespace Pomodoro
         private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
             services.AddHostedService<ApplicationHostService>();
+
+            services.AddSingleton<IAppState, AppState>();
+            services.AddSingleton<IAppLogic, AppLogic>();
+            services.AddSingleton<IObservable, Observable>();
+            services.AddSingleton<INotificationService, NotificationService>();
 
             services.AddTransient<MainPageModel>();
             services.AddTransient<MainPage>();

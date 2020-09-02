@@ -1,37 +1,94 @@
 ﻿using Pomodoro.Core.Enums;
 using Pomodoro.Core.Helpers;
+using Pomodoro.Core.Interfaces;
 using Pomodoro.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Windows.Input;
 
 namespace Pomodoro.ViewModels
 {
     public class MainPageModel : Observable
     {
-        private int _focusTime;
+        private readonly IAppState _appState;
+        private readonly IAppLogic _appLogic;
+
+        private ICommand _actionButtonCommand;
+
+        public MainPageModel(IAppState appState, IAppLogic appLogic)
+        {
+            _appState = appState;
+            _appLogic = appLogic;
+
+            _appState.StatusChanged += HandleAppStateStatusChanged;
+            _appState.TimeRemainingChanged += HandleAppStateTimerChanged;
+        }
+
+        public ICommand ActionButtonCommand => new RelayCommand(ProcessActionButtonClick(), null);
+
         public int FocusTime
         {
-            get { return _focusTime; }
-            set { Set(ref _focusTime, value); }
+            get { return _appState.FocusTime; }
+            set 
+            {
+                _appLogic.SetFocusTime(value);
+                OnPropertyChanged();
+            }
         }
 
-        private int _breakTime;
         public int BreakTime
         {
-            get { return _breakTime; }
-            set { Set(ref _breakTime, value); }
+            get { return _appState.BreakTime; }
+            set 
+            { 
+                _appLogic.SetBreakTime(value);
+                OnPropertyChanged();
+            }
         }
 
-        private Status _currentStatus;
-        public Status CurrentStatus
+        public string StatusDescription { get { return _appState.CurrentStatus.GetEnumDescription(); } }
+        public string TimerStringValue { get { return _appState.TimeRemaining.ToString(@"mm\:ss"); } }
+
+        public string ActionButtonDescription
         {
-            get { return _currentStatus; }
-            set { Set(ref _currentStatus, value); }
+            get
+            {
+                switch (_appState.CurrentStatus) {
+                    case Status.Waiting:
+                        return Resources.Resources.Start;
+                    case Status.Break:
+                    case Status.Focus:
+                        return Resources.Resources.Stop;
+                    default:
+                        throw new ArgumentException("Invalid status value");
+                };
+            }
         }
 
-        public string StatusDescription { get { return _currentStatus.GetEnumDescription(); } }
+        public Action ProcessActionButtonClick()
+        {
+            switch (_appState.CurrentStatus)
+            {
+                case Status.Waiting:
+                    return new Action(_appLogic.StartFocus);
+                case Status.Focus:
+                case Status.Break:
+                    return new Action(_appLogic.ResetPomodoro);
+                default:
+                    throw new ArgumentException("Invalid status value");
+            }
+        }
+
+        private void HandleAppStateStatusChanged(object sender, EventArgs args)
+        {
+            OnPropertyChanged("StatusDescription");
+            OnPropertyChanged("ActionButtonDescription");
+            OnPropertyChanged("TimerStringValue");
+        }
+
+        private void HandleAppStateTimerChanged(object sender, EventArgs args)
+        {
+            OnPropertyChanged("TimerStringValue");
+            OnPropertyChanged("ActionButtonCommand");
+        }
     }
 }
