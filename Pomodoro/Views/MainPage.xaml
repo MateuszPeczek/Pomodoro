@@ -4,10 +4,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:resx="clr-namespace:Pomodoro.Resources"
         xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
-        Title="Pomodoro" Height="450" Width="800">
-    <Grid>
-
+        Title="{x:Static resx:Resources.AppTitle}" Height="500" Width="300">
+    <Grid Style="{StaticResource BackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <StackPanel Orientation="Vertical">
+                <Label x:Name="FocusLabel" Content="{x:Static resx:Resources.FocusTime}" Style="{StaticResource WhiteFont}"/>
+                <Slider x:Name="FocusSlider" Value="{Binding FocusTime}" Style="{StaticResource SliderStyle}"/>
+                <Label x:Name="FocusTimeLabel" Content="{Binding FocusTime}" Style="{StaticResource WhiteFont}"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <Label x:Name="BreakLabel" Content="{x:Static resx:Resources.BreakTime}" Style="{StaticResource WhiteFont}"/>
+                <Slider x:Name="BreakSlider" Value="{Binding BreakTime}" Style="{StaticResource SliderStyle}"/>
+                <Label x:Name="BreakTimeLabel" Content="{Binding BreakTime}" Style="{StaticResource WhiteFont}"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+            <Label x:Name="StatusLabel" Content="{Binding StatusDescription}" Style="{StaticResource WhiteFont}"/>
+        </StackPanel>
     </Grid>
 </mah:MetroWindow>
