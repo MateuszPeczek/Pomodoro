@@ -12,8 +12,6 @@ namespace Pomodoro.ViewModels
         private readonly IAppState _appState;
         private readonly IAppLogic _appLogic;
 
-        private ICommand _actionButtonCommand;
-
         public MainPageModel(IAppState appState, IAppLogic appLogic)
         {
             _appState = appState;

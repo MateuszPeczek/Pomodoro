@@ -1,6 +1,5 @@
 ﻿using Pomodoro.Core.Enums;
 using System;
-using System.Timers;
 
 namespace Pomodoro.Core.Interfaces
 {

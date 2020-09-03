@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Pomodoro.Core.Interfaces
+﻿namespace Pomodoro.Core.Interfaces
 {
     public interface IAppLogic
     {

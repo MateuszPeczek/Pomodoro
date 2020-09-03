@@ -1,6 +1,5 @@
 ﻿using MahApps.Metro.Controls;
 using Pomodoro.ViewModels;
-using System.Windows;
 
 namespace Pomodoro
 {
