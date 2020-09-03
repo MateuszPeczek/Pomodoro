@@ -10,6 +10,7 @@ using Pomodoro.ViewModels;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using Windows.UI.Notifications;
 
 namespace Pomodoro
 {
@@ -46,6 +47,8 @@ namespace Pomodoro
             services.AddSingleton<IAppLogic, AppLogic>();
             services.AddSingleton<IObservable, Observable>();
             services.AddSingleton<INotificationService, NotificationService>();
+            services.AddSingleton<IXMLService, XMLService>();
+            services.AddSingleton((s) => ToastNotificationManager.CreateToastNotifier());
 
             services.AddTransient<MainPageModel>();
             services.AddTransient<MainPage>();

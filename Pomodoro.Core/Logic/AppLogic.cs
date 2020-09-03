@@ -1,7 +1,8 @@
 ﻿using Pomodoro.Core.Enums;
 using Pomodoro.Core.Interfaces;
 using System;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pomodoro.Core.Logic
 {
@@ -10,13 +11,16 @@ namespace Pomodoro.Core.Logic
         private const int _timerIntervalMilliseconds = 1000;
 
         private readonly IAppState _appState;
+        private readonly INotificationService _notificationService;
 
-        private Timer _timer { get; set; } = new Timer(_timerIntervalMilliseconds);
+        private CancellationTokenSource _source;
 
-        public AppLogic(IAppState appState)
+        public AppLogic(IAppState appState, INotificationService notificationService)
         {
             _appState = appState;
-            _timer.Elapsed += TimerElapsed;
+            _notificationService = notificationService;
+
+            _source = new CancellationTokenSource();
         }
 
         public void SetFocusTime(int value) => _appState.FocusTime = value;
@@ -24,35 +28,50 @@ namespace Pomodoro.Core.Logic
 
         public void ResetPomodoro()
         {
-            _timer.Enabled = false;
+            _source.Cancel();
             _appState.CurrentStatus = Status.Waiting;
             _appState.TimeRemaining = new TimeSpan();
         }
 
-        public void StartFocus()
+        public async void StartFocus()
         {
-            StartCounting(_appState.FocusTime, Status.Focus);
+            await StartCounting(_appState.FocusTime, Status.Focus);
         }
 
-        private void StartBreak()
+        private async void StartBreak()
         {
-            StartCounting(_appState.BreakTime, Status.Break);
+            await StartCounting(_appState.BreakTime, Status.Break);
         }
 
-        private void StartCounting(int minutes, Status status)
+        private async Task StartCounting(int minutes, Status status)
         {
             _appState.CurrentStatus = status;
             _appState.TimeRemaining = TimeSpan.FromMinutes(minutes);
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
+
+            try
+            {
+                while (_appState.CurrentStatus != Status.Waiting)
+                {
+                    await DelayedTimeSpanUpdate();
+                    if (_appState.TimeRemaining.Minutes == 0 &&
+                        _appState.TimeRemaining.Seconds == 0)
+                    {
+                        UpdateStatus();
+                        break;
+                    }
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                _source.Dispose();
+                _source = new CancellationTokenSource();
+            }
         }
 
-        private void TimerElapsed(object sender, ElapsedEventArgs args)
+        private async Task DelayedTimeSpanUpdate()
         {
             _appState.TimeRemaining = _appState.TimeRemaining.Subtract(TimeSpan.FromMilliseconds(_timerIntervalMilliseconds));
-            if (_appState.TimeRemaining.Minutes == 0 &&
-                _appState.TimeRemaining.Seconds == 0)
-                    UpdateStatus();
+            await Task.Delay(_timerIntervalMilliseconds, _source.Token);
         }
 
         private void UpdateStatus()
@@ -60,9 +79,11 @@ namespace Pomodoro.Core.Logic
             switch (_appState.CurrentStatus)
             {
                 case Status.Focus:
+                    _notificationService.ShowTakeABreakNotification();
                     StartBreak();
                     break;
                 case Status.Break:
+                    _notificationService.ShowFocusNotification();
                     StartFocus();
                     break;
             }
